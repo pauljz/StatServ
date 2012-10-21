@@ -3,7 +3,7 @@ StatServ
 StatServ is an IRC network service that monitors various ircd vitals
 and allows them to be exposed in real time via a sockets-based web interface.
 
-It was designed to work with UnrealIRCd and IRC Services on [UtoNet](irc://irc.utonet.org),
+It was designed to work with UnrealIRCd and IRC Services on [UtoNet](http://www.utonet.org),
 and that's probably the only environment on which it'd work out-of-the-box;
 however, it wouldn't be terribly difficult to update the regular expressions and connection
 information to make it play nice with another IRCd.
