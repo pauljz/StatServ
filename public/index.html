@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>UtoNet Stat Monitor</title>
+		<script src="https://raw.github.com/joewalnes/smoothie/master/smoothie.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+	</head>
+	<body>
+		<h1>Users: <span id="user-count"></span></h1>
+		<canvas id="users_fast" width="640" height="280"></canvas>
+		<canvas id="users_slow" width="640" height="280"></canvas>
+		<script>
+			var tsUsersFast = new TimeSeries();
+			var tsUsersSlow = new TimeSeries();
+
+			var slowSettings = {
+				fps: 30,
+				minValue: 0,
+				maxValueScale:1.1,
+				millisPerPixel: 500,
+				grid: {
+					fillStyle:'rgb( 255, 255, 255 )',
+					strokeStyle:'rgba( 0, 136, 204, .1 )',
+					lineWidth: 1, millisPerLine: 5000, verticalSections: 12
+				},
+				labels: { fillStyle:'rgb( 0, 136, 204 )' }
+			};
+
+			var usersSlow = new SmoothieChart(slowSettings);
+			usersSlow.streamTo( document.getElementById("users_slow") );
+			usersSlow.addTimeSeries(tsUsersSlow, {
+				strokeStyle: '#073C6D',
+				fillStyle: 'rgba(7, 60, 109, 0.4)',
+				lineWidth: 2
+			});
+
+			var fastSettings = {
+				fps: 30,
+				millisPerPixel: 50,
+				grid: {
+					fillStyle:'rgb( 255, 255, 255 )',
+					strokeStyle:'rgba( 0, 136, 204, .1 )',
+					lineWidth: 1, millisPerLine: 500, verticalSections: 12
+				},
+				labels: { fillStyle:'rgb( 0, 136, 204 )' }
+			};
+
+			var usersFast = new SmoothieChart(fastSettings);
+			usersFast.streamTo( document.getElementById("users_fast") );
+			usersFast.addTimeSeries(tsUsersFast, {
+				strokeStyle: '#073C6D',
+				fillStyle: 'rgba(7, 60, 109, 0.4)',
+				lineWidth: 2
+			});
+
+			var socket = io.connect( window.location.origin );
+			socket.on( 'connect', function() {
+				socket.on( 'values', function( values ) {
+					tsUsersFast.append( new Date().getTime(), values.users );
+					tsUsersSlow.append( new Date().getTime(), values.users );
+					document.getElementById('user-count').innerHTML = values.users;
+					fastSettings.minValue = ( values.users - 20 );
+					fastSettings.maxValue = ( values.users + 20 );
+				});
+				socket.on( 'value', function( key, value ) {
+					if ( key === 'users' ) {
+						tsUsersFast.append( new Date().getTime(), value );
+						tsUsersSlow.append( new Date().getTime(), value );
+						document.getElementById('user-count').innerHTML = value;
+						fastSettings.minValue = ( value - 20 );
+						fastSettings.maxValue = ( value + 20 );
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

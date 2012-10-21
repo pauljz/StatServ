@@ -1,0 +1,2 @@
+#!/bin/bash
+SERVER=irc.utonet.org NICKNAME=StatServ CHANNEL=#opers OPER_USERNAME=oper OPER_PASSWORD=password NICKSERV_PASSWORD=nspassword CTCP_VERSION=StatServ node statserv.js > bot.out &
