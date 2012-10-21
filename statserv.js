@@ -28,7 +28,7 @@ bot = new StatServIRC({
 bot.on( 'connected', function() {
 	bot.client.send( 'OPER', process.env.OPER_USERNAME, process.env.OPER_PASSWORD );
 	bot.client.say( 'NickServ', 'IDENTIFY ' + process.env.NICKSERV_PASSWORD );
-	bot.client.send( 'MODE', process.env.NICKNAME, '+Bs +cefFGjknNoqsSv' );
+	bot.client.raw( 'MODE ' + process.env.NICKNAME + ' +Bs +cn' );
 });
 
 //
