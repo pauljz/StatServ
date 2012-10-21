@@ -12,6 +12,8 @@
 		<script>
 			var tsUsersFast = new TimeSeries();
 			var tsUsersSlow = new TimeSeries();
+			var tsMibbitUsersFast = new TimeSeries();
+			var tsMibbitUsersSlow = new TimeSeries();
 
 			var slowSettings = {
 				fps: 30,
@@ -28,6 +30,11 @@
 
 			var usersSlow = new SmoothieChart(slowSettings);
 			usersSlow.streamTo( document.getElementById("users_slow") );
+			usersSlow.addTimeSeries(tsMibbitUsersSlow, {
+				strokeStyle: '#3C076D',
+				fillStyle: 'rgba(60, 7, 109, 0.4)',
+				lineWidth: 2
+			});
 			usersSlow.addTimeSeries(tsUsersSlow, {
 				strokeStyle: '#073C6D',
 				fillStyle: 'rgba(7, 60, 109, 0.4)',
@@ -37,6 +44,7 @@
 			var fastSettings = {
 				fps: 30,
 				millisPerPixel: 50,
+				minValue: 0,
 				grid: {
 					fillStyle:'rgb( 255, 255, 255 )',
 					strokeStyle:'rgba( 0, 136, 204, .1 )',
@@ -47,6 +55,11 @@
 
 			var usersFast = new SmoothieChart(fastSettings);
 			usersFast.streamTo( document.getElementById("users_fast") );
+			usersFast.addTimeSeries(tsMibbitUsersFast, {
+				strokeStyle: '#3C076D',
+				fillStyle: 'rgba(60, 7, 109, 0.4)',
+				lineWidth: 2
+			});
 			usersFast.addTimeSeries(tsUsersFast, {
 				strokeStyle: '#073C6D',
 				fillStyle: 'rgba(7, 60, 109, 0.4)',
@@ -56,10 +69,11 @@
 			var socket = io.connect( window.location.origin );
 			socket.on( 'connect', function() {
 				socket.on( 'values', function( values ) {
+					tsMibbitUsersFast.append( new Date().getTime(), values['mibbit:users'] );
+					tsMibbitUsersSlow.append( new Date().getTime(), values['mibbit:users'] );
 					tsUsersFast.append( new Date().getTime(), values.users );
 					tsUsersSlow.append( new Date().getTime(), values.users );
 					document.getElementById('user-count').innerHTML = values.users;
-					fastSettings.minValue = ( values.users - 20 );
 					fastSettings.maxValue = ( values.users + 20 );
 				});
 				socket.on( 'value', function( key, value ) {
@@ -67,8 +81,10 @@
 						tsUsersFast.append( new Date().getTime(), value );
 						tsUsersSlow.append( new Date().getTime(), value );
 						document.getElementById('user-count').innerHTML = value;
-						fastSettings.minValue = ( value - 20 );
 						fastSettings.maxValue = ( value + 20 );
+					} else if ( key === 'mibbit:users' ) {
+						tsMibbitUsersFast.append( new Date().getTime(), value );
+						tsMibbitUsersSlow.append( new Date().getTime(), value );
 					}
 				});
 			});

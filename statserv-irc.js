@@ -4,10 +4,10 @@ var util   = require('util')
 //
 // Precompile some regular expressions that we'll use frequently.
 //
-var clientConnectRegex   = /^\*\*\* Notice -- Client connecting on port (\d+): (\S+) \((\S+)@(\S+)\) \[clients\]/;
-var clientDisonnectRegex = /^\*\*\* Notice -- Client exiting: (\S+) \((\S+)@(\S+)\) \[(.*)\]$/;
-var clientFloodRegex     = /^\*\*\* Flood -- (\S+)!(\S+)@(\S+) \((\d+)\) exceeds \(\d+\) recvQ$/;
-var raw266Regex          = /^Current Global Users: (\d+)\s+Max: (\d+)$/;
+var clientConnectRegex    = /^\*\*\* Notice -- Client connecting on port (\d+): (\S+) \((\S+)@(\S+)\) \[clients\]/;
+var clientDisconnectRegex = /^\*\*\* Notice -- Client exiting: (\S+) \((\S+)@(\S+)\) \[(.*)\]$/;
+var clientFloodRegex      = /^\*\*\* Flood -- (\S+)!(\S+)@(\S+) \((\d+)\) exceeds \(\d+\) recvQ$/;
+var raw266Regex           = /^Current Global Users: (\d+)\s+Max: (\d+)$/;
 
 var StatServIRC = function(options) {
 	var _this = this;
@@ -179,8 +179,14 @@ StatServIRC.prototype.handleSNotice = function( message ) {
 	var match;
 	if ( match = message.args[1].match( clientConnectRegex ) ) {
 		this.incValue( 'users', 1 );
-	} else if ( match = message.args[1].match( clientDisonnectRegex ) ) {
+		if ( match[3] === 'Mibbit' ) {
+			this.incValue( 'mibbit:users', 1 );
+		}
+	} else if ( match = message.args[1].match( clientDisconnectRegex ) ) {
 		this.incValue( 'users', -1 );
+		if ( match[2] === 'Mibbit' ) {
+			this.incValue( 'mibbit:users', -1 );
+		}
 	} else if ( match = message.args[1].match( clientFloodRegex ) ) {
 		console.log( "Client flood: " );
 		console.log( match );
