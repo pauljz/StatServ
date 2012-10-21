@@ -3,13 +3,42 @@
 	<head>
 		<title>UtoNet Stat Monitor</title>
 		<script src="https://raw.github.com/joewalnes/smoothie/master/smoothie.js"></script>
+		<script src="https://raw.github.com/DmitryBaranovskiy/raphael/52bff469f60988f1391e8b3d7cb5349163df8ba1/raphael-min.js"></script>
+		<script src="https://raw.github.com/toorshia/justgage/master/justgage.1.0.1.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
+		<style>
+			h1 { 
+				font-family: "Open Sans", "Segoe UI Light", sans-serif;
+				vertical-align: bottom;
+				font-size: 42px;
+				font-weight: 300;
+				color: #073C6D;
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Users: <span id="user-count"></span></h1>
+		<h1><img src="http://www.utonet.org/img/logo.gif" /> Dashboard</h1>
+		<div id="gauge-users" style="width:200px; height:160px; float:left;"></div>
+		<div id="gauge-mibbitusers" style="width:200px; height:160px; float:left;"></div>
+		<div style="clear:both;"></div>
 		<canvas id="users_fast" width="640" height="280"></canvas>
 		<canvas id="users_slow" width="640" height="280"></canvas>
 		<script>
+
+			var gusers = new JustGage({
+				id: "gauge-users", 
+				value: 0, 
+				min: 0,
+				max: 1500,
+				title: "Users"
+			});
+			var gmibbitusers = new JustGage({
+				id: "gauge-mibbitusers", 
+				value: 0, 
+				min: 0,
+				max: 250,
+				title: "Mibbit Users"
+			});
 			var tsUsersFast = new TimeSeries();
 			var tsUsersSlow = new TimeSeries();
 			var tsMibbitUsersFast = new TimeSeries();
@@ -73,18 +102,20 @@
 					tsMibbitUsersSlow.append( new Date().getTime(), values['mibbit:users'] );
 					tsUsersFast.append( new Date().getTime(), values.users );
 					tsUsersSlow.append( new Date().getTime(), values.users );
-					document.getElementById('user-count').innerHTML = values.users;
 					fastSettings.maxValue = ( values.users + 20 );
+					gusers.refresh( values.users );
+					gmibbitusers.refresh( values['mibbit:users'] );
 				});
 				socket.on( 'value', function( key, value ) {
 					if ( key === 'users' ) {
 						tsUsersFast.append( new Date().getTime(), value );
 						tsUsersSlow.append( new Date().getTime(), value );
-						document.getElementById('user-count').innerHTML = value;
 						fastSettings.maxValue = ( value + 20 );
+						gusers.refresh( value );
 					} else if ( key === 'mibbit:users' ) {
 						tsMibbitUsersFast.append( new Date().getTime(), value );
 						tsMibbitUsersSlow.append( new Date().getTime(), value );
+						gmibbitusers.refresh( value );
 					}
 				});
 			});
