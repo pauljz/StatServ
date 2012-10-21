@@ -47,7 +47,7 @@ var StatServIRC = function(options) {
 	//
 	// Add our own raw command to the irc lib since the send method inserts colons when it shouldn't
 	//
-	this.client.raw = function( command ) { // {{{
+	this.client.raw = function( command ) {
 		if ( ! this.conn.requestedDisconnect ) {
 			this.conn.write( command + "\r\n" );
 		}
@@ -163,7 +163,7 @@ StatServIRC.prototype.everyHour = function() {
  * at once.  The callbacks will be executed in order since it's assumed that
  * the server will itself respond in the order requested.
  *
- * @param {String[]} commands An array of parameters to be passed to /who
+ * @param {String} commands The parameters to be passed to /who
  * @param {function(users)} callback A function to execute when the server responds with a 315.
  */
 StatServIRC.prototype.who = function( commands, callback ) {
