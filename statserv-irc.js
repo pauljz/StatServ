@@ -190,7 +190,7 @@ StatServIRC.prototype.handleSNotice = function( message ) {
 	} else if ( match = message.args[1].match( clientFloodRegex ) ) {
 		console.log( "Client flood: " );
 		console.log( match );
-		this.client.say( this.options.channel, match[0] );
+		this.client.say( this.options.channel, match[1] );
 	}
 };
 
