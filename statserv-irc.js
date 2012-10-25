@@ -6,7 +6,7 @@ var util   = require('util')
 //
 var clientConnectRegex    = /^\*\*\* Notice -- Client connecting on port (\d+): (\S+) \((\S+)@(\S+)\) \[clients\]/;
 var clientDisconnectRegex = /^\*\*\* Notice -- Client exiting: (\S+) \((\S+)@(\S+)\) \[(.*)\]$/;
-var clientFloodRegex      = /^\*\*\* Flood -- (\S+)!(\S+)@(\S+) \((\d+)\) exceeds \(\d+\) recvQ$/;
+var clientFloodRegex      = /^\*\*\* Flood -- (\S+)!(\S+)@(\S+) \((\d+)\) exceeds (\d+) recvQ$/;
 var raw266Regex           = /^Current Global Users: (\d+)\s+Max: (\d+)$/;
 
 var StatServIRC = function(options) {
@@ -188,9 +188,7 @@ StatServIRC.prototype.handleSNotice = function( message ) {
 			this.incValue( 'mibbit:users', -1 );
 		}
 	} else if ( match = message.args[1].match( clientFloodRegex ) ) {
-		console.log( "Client flood: " );
-		console.log( match );
-		this.client.say( this.options.channel, match[1] );
+		this.client.say( this.options.channel, match[0] );
 	}
 };
 
