@@ -44,6 +44,10 @@ var StatServIRC = function(options) {
 
 	});
 
+	this.client.on('connect', function() {
+		_this.emit( 'connected' );
+	});
+
 	//
 	// Add our own raw command to the irc lib since the send method inserts colons when it shouldn't
 	//
